@@ -2,11 +2,16 @@
 
 namespace App\Entity;
 
-use App\Repository\BookingRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
+use App\Repository\BookingRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 
 #[ORM\Entity(repositoryClass: BookingRepository::class)]
+#[ORM\Table(name: 'booking')]
+#[ApiResource]
 class Booking
 {
     #[ORM\Id]
@@ -14,34 +19,27 @@ class Booking
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\OneToOne(inversedBy: 'booking', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $relatedUser = null;
-
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[ORM\Column(name: 'start_date', type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $startDate = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[ORM\Column(name: 'end_date', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $endDate = null;
 
-    #[ORM\OneToOne(mappedBy: 'relatedBooking', cascade: ['persist', 'remove'])]
-    private ?BookingEntry $bookingEntry = null;
+    #[ORM\ManyToOne(inversedBy: 'Bookings')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
+
+    #[ORM\OneToMany(mappedBy: 'booking', targetEntity: BookingEntry::class)]
+    private Collection $bookingEntries;
+
+    public function __construct()
+    {
+        $this->bookingEntries = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getRelatedUser(): ?User
-    {
-        return $this->relatedUser;
-    }
-
-    public function setRelatedUser(User $relatedUser): static
-    {
-        $this->relatedUser = $relatedUser;
-
-        return $this;
     }
 
     public function getStartDate(): ?\DateTimeInterface
@@ -68,19 +66,44 @@ class Booking
         return $this;
     }
 
-    public function getBookingEntry(): ?BookingEntry
+    public function getUser(): ?User
     {
-        return $this->bookingEntry;
+        return $this->user;
     }
 
-    public function setBookingEntry(BookingEntry $bookingEntry): static
+    public function setUser(?User $user): static
     {
-        // set the owning side of the relation if necessary
-        if ($bookingEntry->getRelatedBooking() !== $this) {
-            $bookingEntry->setRelatedBooking($this);
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BookingEntry>
+     */
+    public function getBookingEntries(): Collection
+    {
+        return $this->bookingEntries;
+    }
+
+    public function addBookingEntry(BookingEntry $bookingEntry): static
+    {
+        if (!$this->bookingEntries->contains($bookingEntry)) {
+            $this->bookingEntries->add($bookingEntry);
+            $bookingEntry->setBooking($this);
         }
 
-        $this->bookingEntry = $bookingEntry;
+        return $this;
+    }
+
+    public function removeBookingEntry(BookingEntry $bookingEntry): static
+    {
+        if ($this->bookingEntries->removeElement($bookingEntry)) {
+            // set the owning side to null (unless already changed)
+            if ($bookingEntry->getBooking() === $this) {
+                $bookingEntry->setBooking(null);
+            }
+        }
 
         return $this;
     }
