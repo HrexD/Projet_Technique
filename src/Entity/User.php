@@ -4,11 +4,13 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: '`user`')]
+#[ORM\Table(name: 'user')]
 #[ApiResource]
 class User
 {
@@ -17,23 +19,29 @@ class User
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $name = null;
-
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(name: 'last_name', type: Types::STRING, length: 255)]
     private ?string $lastName = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(name: 'first_name', type: Types::STRING, length: 255)]
     private ?string $firstName = null;
 
-    #[ORM\Column(type: Types::BLOB)]
+    #[ORM\Column(name: 'user_picture', type: Types::STRING, length: 255)]
     private $userPicture = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(name: 'role', length: 255)]
     private ?string $role = null;
 
-    #[ORM\OneToOne(mappedBy: 'relatedUser', cascade: ['persist', 'remove'])]
-    private ?Booking $booking = null;
+    #[ORM\OneToMany(mappedBy: 'relatedUser', targetEntity: Pictures::class, orphanRemoval: true)]
+    private Collection $pictures;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Booking::class)]
+    private Collection $Bookings;
+
+    public function __construct()
+    {
+        $this->pictures = new ArrayCollection();
+        $this->Bookings = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -88,19 +96,62 @@ class User
         return $this;
     }
 
-    public function getBooking(): ?Booking
+    /**
+     * @return Collection<int, Pictures>
+     */
+    public function getPictures(): Collection
     {
-        return $this->booking;
+        return $this->pictures;
     }
 
-    public function setBooking(Booking $booking): static
+    public function addPicture(Pictures $picture): static
     {
-        // set the owning side of the relation if necessary
-        if ($booking->getRelatedUser() !== $this) {
-            $booking->setRelatedUser($this);
+        if (!$this->pictures->contains($picture)) {
+            $this->pictures->add($picture);
+            $picture->setRelatedUser($this);
         }
 
-        $this->booking = $booking;
+        return $this;
+    }
+
+    public function removePicture(Pictures $picture): static
+    {
+        if ($this->pictures->removeElement($picture)) {
+            // set the owning side to null (unless already changed)
+            if ($picture->getRelatedUser() === $this) {
+                $picture->setRelatedUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Booking>
+     */
+    public function getBookings(): Collection
+    {
+        return $this->Bookings;
+    }
+
+    public function addBooking(Booking $booking): static
+    {
+        if (!$this->Bookings->contains($booking)) {
+            $this->Bookings->add($booking);
+            $booking->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBooking(Booking $booking): static
+    {
+        if ($this->Bookings->removeElement($booking)) {
+            // set the owning side to null (unless already changed)
+            if ($booking->getUser() === $this) {
+                $booking->setUser(null);
+            }
+        }
 
         return $this;
     }

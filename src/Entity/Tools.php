@@ -2,10 +2,16 @@
 
 namespace App\Entity;
 
-use App\Repository\ToolsRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ToolsRepository;
+use ApiPlatform\Metadata\ApiResource;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 
 #[ORM\Entity(repositoryClass: ToolsRepository::class)]
+#[ORM\Table(name: 'tools')]
+#[ApiResource]
 class Tools
 {
     #[ORM\Id]
@@ -13,14 +19,19 @@ class Tools
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(name: 'name', type: Types::STRING, length: 255)]
     private ?string $name = null;
 
-    #[ORM\Column]
+    #[ORM\Column(name: 'quantity', type: Types::INTEGER)]
     private ?int $quantity = null;
 
-    #[ORM\OneToOne(mappedBy: 'relatedTools', cascade: ['persist', 'remove'])]
-    private ?BookingEntry $bookingEntry = null;
+    #[ORM\OneToMany(mappedBy: 'tools', targetEntity: BookingEntry::class)]
+    private Collection $bookingEntries;
+
+    public function __construct()
+    {
+        $this->bookingEntries = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -51,19 +62,32 @@ class Tools
         return $this;
     }
 
-    public function getBookingEntry(): ?BookingEntry
+    /**
+     * @return Collection<int, BookingEntry>
+     */
+    public function getBookingEntries(): Collection
     {
-        return $this->bookingEntry;
+        return $this->bookingEntries;
     }
 
-    public function setBookingEntry(BookingEntry $bookingEntry): static
+    public function addBookingEntry(BookingEntry $bookingEntry): static
     {
-        // set the owning side of the relation if necessary
-        if ($bookingEntry->getRelatedTools() !== $this) {
-            $bookingEntry->setRelatedTools($this);
+        if (!$this->bookingEntries->contains($bookingEntry)) {
+            $this->bookingEntries->add($bookingEntry);
+            $bookingEntry->setTools($this);
         }
 
-        $this->bookingEntry = $bookingEntry;
+        return $this;
+    }
+
+    public function removeBookingEntry(BookingEntry $bookingEntry): static
+    {
+        if ($this->bookingEntries->removeElement($bookingEntry)) {
+            // set the owning side to null (unless already changed)
+            if ($bookingEntry->getTools() === $this) {
+                $bookingEntry->setTools(null);
+            }
+        }
 
         return $this;
     }

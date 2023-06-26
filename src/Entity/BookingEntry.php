@@ -2,10 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\BookingEntryRepository;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
+use App\Repository\BookingEntryRepository;
 
 #[ORM\Entity(repositoryClass: BookingEntryRepository::class)]
+#[ORM\Table(name: 'booking_entry')]
+#[ApiResource]
 class BookingEntry
 {
     #[ORM\Id]
@@ -13,39 +16,39 @@ class BookingEntry
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\OneToOne(inversedBy: 'bookingEntry', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?booking $relatedBooking = null;
+    #[ORM\ManyToOne(inversedBy: 'bookingEntries')]
+    #[ORM\JoinColumn(name: 'related_booking_id', nullable: false)]
+    private ?Booking $booking = null;
 
-    #[ORM\OneToOne(inversedBy: 'bookingEntry', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Tools $relatedTools = null;
+    #[ORM\ManyToOne(inversedBy: 'bookingEntries')]
+    #[ORM\JoinColumn(name: 'related_tools_id', nullable: false)]
+    private ?Tools $tools = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getRelatedBooking(): ?booking
+    public function getBooking(): ?Booking
     {
-        return $this->relatedBooking;
+        return $this->booking;
     }
 
-    public function setRelatedBooking(booking $relatedBooking): static
+    public function setBooking(?Booking $booking): static
     {
-        $this->relatedBooking = $relatedBooking;
+        $this->booking = $booking;
 
         return $this;
     }
 
-    public function getRelatedTools(): ?Tools
+    public function getTools(): ?Tools
     {
-        return $this->relatedTools;
+        return $this->tools;
     }
 
-    public function setRelatedTools(Tools $relatedTools): static
+    public function setTools(?Tools $tools): static
     {
-        $this->relatedTools = $relatedTools;
+        $this->tools = $tools;
 
         return $this;
     }
