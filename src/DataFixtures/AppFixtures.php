@@ -2,9 +2,11 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\User;
 use App\Entity\Tools;
-use Doctrine\Bundle\FixturesBundle\Fixture;
+use App\Entity\Pictures;
 use Doctrine\Persistence\ObjectManager;
+use Doctrine\Bundle\FixturesBundle\Fixture;
 
 class AppFixtures extends Fixture
 {
@@ -80,6 +82,23 @@ class AppFixtures extends Fixture
         $tool->setName('taser');
         $tool->setQuantity(5);
         $manager->persist($tool);
+
+        $user = new User();
+        $user->setLastName('Groetschel');
+        $user->setFirstName('Jonas');
+        $user->setUserPicture('test_1.jpg');
+        $user->setRole('Vigile');
+        $manager->persist($user);
+
+        $picture = new Pictures();
+        $picture->setUrl('test_1.jpg');
+        $picture->setRelatedUser($user);
+        $manager->persist($picture);
+
+        $picture = new Pictures();
+        $picture->setUrl('test_2.jpg');
+        $picture->setRelatedUser($user);
+        $manager->persist($picture);
         
         $manager->flush();
     }
