@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20230626142345 extends AbstractMigration
+final class Version20230627083233 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -22,9 +22,9 @@ final class Version20230626142345 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql('CREATE TABLE booking (id INT AUTO_INCREMENT NOT NULL, user_id INT NOT NULL, start_date DATE NOT NULL, end_date DATE DEFAULT NULL, INDEX IDX_E00CEDDEA76ED395 (user_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE booking_entry (id INT AUTO_INCREMENT NOT NULL, related_booking_id INT NOT NULL, related_tools_id INT NOT NULL, INDEX IDX_BA5D60C589FD14D0 (related_booking_id), INDEX IDX_BA5D60C5D3AF0631 (related_tools_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('CREATE TABLE pictures (id INT AUTO_INCREMENT NOT NULL, related_user_id INT NOT NULL, url VARCHAR(255) NOT NULL, INDEX IDX_8F7C2FC098771930 (related_user_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE pictures (id INT AUTO_INCREMENT NOT NULL, related_user_id INT NOT NULL, url VARCHAR(255) NOT NULL, UNIQUE INDEX UNIQ_8F7C2FC098771930 (related_user_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE tools (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(255) NOT NULL, quantity INT NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('CREATE TABLE user (id INT AUTO_INCREMENT NOT NULL, last_name VARCHAR(255) NOT NULL, first_name VARCHAR(255) NOT NULL, user_picture VARCHAR(255) NOT NULL, role VARCHAR(255) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE user (id INT AUTO_INCREMENT NOT NULL, last_name VARCHAR(255) NOT NULL, first_name VARCHAR(255) NOT NULL, role VARCHAR(255) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('ALTER TABLE booking ADD CONSTRAINT FK_E00CEDDEA76ED395 FOREIGN KEY (user_id) REFERENCES user (id)');
         $this->addSql('ALTER TABLE booking_entry ADD CONSTRAINT FK_BA5D60C589FD14D0 FOREIGN KEY (related_booking_id) REFERENCES booking (id)');
         $this->addSql('ALTER TABLE booking_entry ADD CONSTRAINT FK_BA5D60C5D3AF0631 FOREIGN KEY (related_tools_id) REFERENCES tools (id)');

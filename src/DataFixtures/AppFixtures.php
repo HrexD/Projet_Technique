@@ -86,17 +86,11 @@ class AppFixtures extends Fixture
         $user = new User();
         $user->setLastName('Groetschel');
         $user->setFirstName('Jonas');
-        $user->setUserPicture('test_1.jpg');
         $user->setRole('Vigile');
         $manager->persist($user);
 
         $picture = new Pictures();
         $picture->setUrl('test_1.jpg');
-        $picture->setRelatedUser($user);
-        $manager->persist($picture);
-
-        $picture = new Pictures();
-        $picture->setUrl('test_2.jpg');
         $picture->setRelatedUser($user);
         $manager->persist($picture);
         
