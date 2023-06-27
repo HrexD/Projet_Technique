@@ -16,28 +16,16 @@ class Pictures
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'pictures')]
-    #[ORM\JoinColumn(name: 'related_user_id', nullable: false)]
-    private ?user $relatedUser = null;
-
     #[ORM\Column(name: 'url', length: 255)]
     private ?string $url = null;
+
+    #[ORM\OneToOne(inversedBy: 'pictures', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $relatedUser = null;
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getRelatedUser(): ?user
-    {
-        return $this->relatedUser;
-    }
-
-    public function setRelatedUser(?user $relatedUser): static
-    {
-        $this->relatedUser = $relatedUser;
-
-        return $this;
     }
 
     public function getUrl(): ?string
@@ -48,6 +36,18 @@ class Pictures
     public function setUrl(string $url): static
     {
         $this->url = $url;
+
+        return $this;
+    }
+
+    public function getRelatedUser(): ?User
+    {
+        return $this->relatedUser;
+    }
+
+    public function setRelatedUser(User $relatedUser): static
+    {
+        $this->relatedUser = $relatedUser;
 
         return $this;
     }

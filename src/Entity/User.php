@@ -25,21 +25,17 @@ class User
     #[ORM\Column(name: 'first_name', type: Types::STRING, length: 255)]
     private ?string $firstName = null;
 
-    #[ORM\Column(name: 'user_picture', type: Types::STRING, length: 255)]
-    private $userPicture = null;
-
     #[ORM\Column(name: 'role', length: 255)]
-    private ?string $role = null;
-
-    #[ORM\OneToMany(mappedBy: 'relatedUser', targetEntity: Pictures::class, orphanRemoval: true)]
-    private Collection $pictures;
+    private ?string $role = 'Vigile';
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Booking::class)]
     private Collection $Bookings;
 
+    #[ORM\OneToOne(mappedBy: 'relatedUser', cascade: ['persist', 'remove'])]
+    private ?Pictures $pictures = null;
+
     public function __construct()
     {
-        $this->pictures = new ArrayCollection();
         $this->Bookings = new ArrayCollection();
     }
 
@@ -72,18 +68,6 @@ class User
         return $this;
     }
 
-    public function getUserPicture()
-    {
-        return $this->userPicture;
-    }
-
-    public function setUserPicture($userPicture): static
-    {
-        $this->userPicture = $userPicture;
-
-        return $this;
-    }
-
     public function getRole(): ?string
     {
         return $this->role;
@@ -92,36 +76,6 @@ class User
     public function setRole(string $role): static
     {
         $this->role = $role;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Pictures>
-     */
-    public function getPictures(): Collection
-    {
-        return $this->pictures;
-    }
-
-    public function addPicture(Pictures $picture): static
-    {
-        if (!$this->pictures->contains($picture)) {
-            $this->pictures->add($picture);
-            $picture->setRelatedUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removePicture(Pictures $picture): static
-    {
-        if ($this->pictures->removeElement($picture)) {
-            // set the owning side to null (unless already changed)
-            if ($picture->getRelatedUser() === $this) {
-                $picture->setRelatedUser(null);
-            }
-        }
 
         return $this;
     }
@@ -152,6 +106,23 @@ class User
                 $booking->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPictures(): ?Pictures
+    {
+        return $this->pictures;
+    }
+
+    public function setPictures(Pictures $pictures): static
+    {
+        // set the owning side of the relation if necessary
+        if ($pictures->getRelatedUser() !== $this) {
+            $pictures->setRelatedUser($this);
+        }
+
+        $this->pictures = $pictures;
 
         return $this;
     }
