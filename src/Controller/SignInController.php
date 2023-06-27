@@ -13,17 +13,13 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 
 class SignInController extends AbstractController
 {
-    /**
-     * @Route("/sign-in", name="sign_in", methods={"GET"})
-     */
+    #[Route('/', name: 'app_sign_in')]
     public function signIn(): Response
     {
         return $this->render('sign_in.html.twig');
     }
 
-    /**
-     * @Route("/sign-in/save-image", name="sign_in_save_image", methods={"POST"})
-     */
+    #[Route('/signin/save-image', name: 'sign_in_save_image')]
     public function saveImage(Request $request, SluggerInterface $slugger): Response
     {
         $imageData = $request->request->get('image');
