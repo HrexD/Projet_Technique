@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Capture d'image</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f1f1f1;
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            display: flex;
+            align-content: center;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        h1 {
+            color: #379EC1;
+        }
+
+        #video {
+               width: 100%;
+            height: auto;
+            margin-right: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        #capture-button {
+            width: 100%;
+            display: block;
+
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #379EC1;
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        #capture-button:hover {
+            background-color: #267c97;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div>
+        <video id="video" autoplay></video>
+        <button id="capture-button">s'identifier</button>
+    </div>
+
+    <script>
+        // Obtenir l'élément vidéo et le bouton de capture
+        const video = document.getElementById('video');
+        const captureButton = document.getElementById('capture-button');
+
+        // Vérifier si la caméra est disponible
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(error => {
+                console.error('Erreur lors de l\'accès à la webcam : ', error);
+            });
+
+        // Fonction pour capturer et enregistrer l'image
+        captureButton.addEventListener('click', () => {
+            // Créer un canevas pour dessiner l'image capturée
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            // Dessiner l'image capturée sur le canevas
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Obtenir les données de l'image au format base64
+            const imageData = canvas.toDataURL('image/jpeg');
+
+            // Créer un formulaire pour envoyer les données de l'image
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ path('sign_in_save_image') }}'; // Remplacez par le chemin de la route de sauvegarde de l'image
+
+            // Créer un champ caché pour les données de l'image
+            const imageInput = document.createElement('input');
+            imageInput.type = 'hidden';
+            imageInput.name = 'image';
+            imageInput.value = imageData;
+
+            // Ajouter le champ caché au formulaire
+            form.appendChild(imageInput);
+
+            // Ajouter le formulaire à la page et le soumettre
+            document.body.appendChild(form);
+            form.submit();
+        });
+    </script>
+</div>
+</body>
+</html>

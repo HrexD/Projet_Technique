@@ -3,3 +3,16 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+# config/routes.yaml
+
+sign_in:
+    path: /sign-in
+    controller: 'App\Controller\SignInController::signIn'
+    methods: GET
+
+sign_in_save_image:
+    path: /sign-in/save-image
+    controller: 'App\Controller\SignInController::saveImage'
+    methods: POST
+
