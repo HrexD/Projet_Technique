@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Controller;
-
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -9,6 +9,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use App\Service\CompareImage;
+use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
 
 class SignInController extends AbstractController
 {
@@ -43,21 +45,41 @@ class SignInController extends AbstractController
 
         file_put_contents($imagePath, $imageData);
 
-        $param2 = 'image2.png';
-        for($i = 1; $i <= 4; $i++) {
-            echo "<br/>";
-            $image_user = 'identification_scan_' . $i . '.jpg';
+        // Récupérer le référentiel pour l'entité User
+        $userRepository = $this->entityManager->getRepository(User::class);
+
+        // Récupérer tous les utilisateurs
+        $users = $userRepository->findAll();
+        $trouver = 0;
+        // Faire quelque chose avec les utilisateurs récupérés
+        foreach ($users as $user) {
+            // Accéder aux propriétés de l'utilisateur
+            $image_user = $user->getPicture();
+            
             $message = $compareImages->Compare2Image($image_user, $imageName);
             if($message =="true") {
-                echo "Les images sont similaires avec ".$image_user;
+                $trouver = 1;
+                $id_user = $user->getId();
+                echo "Les images sont similaires avec ".$id_user;
+
             }
             else {
-                echo "Les images ne sont pas similaires avec ".$image_user;
+                
             }
-
         }
         
+        if ($trouver == 0) {
+            return new RedirectResponse('http://127.0.0.1:8000/');
+        } else {
+            return new RedirectResponse('http://127.0.0.1:8000/item/'.$id_user);
+        }
         
         return new Response('L\'image a été enregistrée avec succès dans le dossier public/images.');
+    }
+    private $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
     }
 }
