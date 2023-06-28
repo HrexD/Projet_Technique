@@ -21,6 +21,7 @@ class ItemsController extends AbstractController
         $tools = $toolsRepository->findAll();
 
         return $this->render('items/index.html.twig', [
+            'user' => $user,
             'tools' => $tools,
         ]);
     }
