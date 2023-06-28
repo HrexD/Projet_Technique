@@ -57,7 +57,7 @@ class SignInController extends AbstractController
         $cache->save($counter);
 
         // Définir le nom de l'image avec le compteur
-        $imageName = 'identification_scan_' . $counterValue . '.jpg';
+        $imageName = 'identification_scan.jpg';
 
         // Chemin de destination pour enregistrer l'image
         $imagePath = $this->getParameter('kernel.project_dir') . '/public/images/' . $imageName;
@@ -78,6 +78,7 @@ class SignInController extends AbstractController
             $match = $compareImages->Compare2Image($image_user, $imageName);
             if($match) {
                 $id_user = $user->getId();
+                //echo $id_user;
                 return $this->redirectToRoute('app_items', ['id' => $id_user]);
             }
             else {
