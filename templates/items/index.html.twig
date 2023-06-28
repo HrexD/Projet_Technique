@@ -5,69 +5,69 @@
 {% block body %}
 <title>Items</title>
 
-<style>
+    <style>
 
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f2f2f2;
-        padding: 20px;
-    }
-
-    h1 {
-        text-align: center;
-        margin-bottom: 50px;
-        margin-top: 20px;
-    }
-
-    img{
-        max-width:180px;
-        max-height:200px;
-        border-radius:50%;
-    }
-
-    form{
-        margin-left: 200px;
-    }
-
-    #checkbox-container {
-        max-width: 640px;
-        margin: 0 auto;
-        padding: 80px 80px 80px 80px;
-        font-size:20px;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    input[type="checkbox"] {
-        transform: scale(1.5);
-        margin-right: 10px;
-        margin-bottom: 20px; 
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            padding: 20px;
         }
 
-    .button-container {
-        margin-top: 20px;
-    }
+        h1 {
+            text-align: center;
+            margin-bottom: 50px;
+            margin-top: 20px;
+        }
 
-    #button {
-        padding: 10px 20px;
-        font-size: 16px;
-        background-color: #379EC1;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
+        img{
+            max-width:180px;
+            max-height:200px;
+            border-radius:50%;
+        }
 
-    #button:hover {
-        background-color: #2e829e;
-    }
+        form{
+            margin-left: 200px;
+        }
+
+        #checkbox-container {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 80px 80px 80px 80px;
+            font-size:20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="checkbox"] {
+            transform: scale(1.5);
+            margin-right: 10px;
+            margin-bottom: 20px; 
+            }
+
+        .button-container {
+            margin-top: 20px;
+        }
+
+        #button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #379EC1;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #button:hover {
+            background-color: #2e829e;
+        }
 
 
-</style>
+    </style>
 
-
+    
 </head>
 <body>
 
@@ -78,45 +78,82 @@
 <h1>Veuillez choisir votre équipement</h1>
 
 <div id="checkbox-container">
-    <form action="" method="POST" class="form">
-            <div>
-                <input type="checkbox" id="mousqueton" name="mousqueton">
-                <label for="mousqueton">Mousqueton</label>
-            </div>
-
-            <div>
-                 <input type="checkbox" id="gant" name="gant d'intervention">
-                 <label for="gant">Gant d'intervention</label>
-            </div>
-
-             <div>
-                 <input type="checkbox" id="ceinture" name="ceinture de sécutité tactique">
-                 <label for="ceinture">Ceinture de sécutité tactique</label>
-            </div>
-
-             <div>
-                 <input type="checkbox" id="caseCocher" name="détecteur de métaux">
-                 <label for="caseCocher">Détecteur de métaux</label>
-            </div>
-
-             <div>
-                <input type="checkbox" id="brassard" name="brassard de sécurité">
-                 <label for="brassard">Brassard de sécurité</label>
-            </div>
-
-             <div>
-                 <input type="checkbox" id="lampe" name="lampe torche">
-                 <label for="lampe">Lampe torche</label>
-            </div>
-
-             <div>
-                 <input type="checkbox" id="gilet" name="gilet pare balle">
-                 <label for="gilet">Gilet pare balle</label>
-            </div>
+    <form action="" id="toolsForm" method="POST" class="form">
+            {% for tool in tools %}
+                <div>
+                    <input type="checkbox" id="{{ tool.id }}" name="{{ tool.slug }}" {{ tool.quantity <= 0 ? "disabled" : "" }}>
+                    <label for="{{ tool.slug }}" style="{{ tool.quantity <= 0 ? "text-decoration: line-through;" : "" }}">{{ tool.name }}</label>
+                </div>
+            {% endfor %}
         <div class="button-container">
             <input id="button" type="submit" value="Valider">
         </div>
     </form>    
 </div>
+
+<script>
+    $(document).ready(function() {
+        $('#toolsForm').submit(function(event) {
+            var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+            var checkboxNames = [];
+
+            checkboxes.forEach(function(checkbox) {
+                // Vérifiez si la valeur de la checkbox est égale à 1
+                
+                if (checkbox.value === 'on' && checkbox.checked) {
+                    // Ajoutez le nom de la checkbox au tableau
+                    checkboxNames.push(checkbox.id);
+                }
+            });
+
+
+            event.preventDefault(); // Empêche la soumission du formulaire
+
+            var bookingData = {
+                user: "api/users/1"
+            }; 
+
+            var bookingId;
+            $.ajax({
+                type: 'POST',
+                url: '/api/bookings',
+                data: JSON.stringify(bookingData),
+                contentType: 'application/json',
+                success: function(response) {
+                    // Gérer la réponse de l'API ici
+                    console.log(response.id);
+                    bookingId = response.id;
+
+                    checkboxNames.forEach(function(name) {
+                        var formData = {
+                            booking: "api/bookings/" + bookingId,
+                            tools: "api/tools/" + name
+                        };
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '/api/booking_entries',
+                            data: JSON.stringify(formData),
+                            contentType: 'application/json',
+                            success: function(response) {
+                                // Gérer la réponse de l'API ici
+                                console.log(response);
+                            },
+                            error: function(xhr, status, error) {
+                                // Gérer les erreurs de requête ici
+                                console.error(error);
+                            }
+                        });
+                    });
+                },
+                error: function(xhr, status, error) {
+                    // Gérer les erreurs de requête ici
+                    console.error(error);
+                }
+            });
+        });
+    });
+</script>
 
 {% endblock %}

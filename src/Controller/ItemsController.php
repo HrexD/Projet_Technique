@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\ToolsRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -9,10 +10,12 @@ use Symfony\Component\Routing\Annotation\Route;
 class ItemsController extends AbstractController
 {
     #[Route('/items', name: 'app_items')]
-    public function index(): Response
+    public function index(ToolsRepository $toolsRepository): Response
     {
+        $tools = $toolsRepository->findAll();
+
         return $this->render('items/index.html.twig', [
-            'controller_name' => 'ItemsController',
+            'tools' => $tools,
         ]);
     }
 }
