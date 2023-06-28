@@ -60,10 +60,42 @@
             cursor: pointer;
         }
 
+        #btnAccueil {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #379EC1;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+            margin-top: 20px;
+            margin-left: 30px;
+        }
+
+        #btnAccueil:hover { 
+            background-color: #267c97;
+        }
+
+        #btnAccueil a{  
+            color: #fff;
+            text-decoration: none;
+        }
+
         #button:hover {
             background-color: #2e829e;
         }
 
+@media screen and (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+
+            #capture-button {
+                max-width: 100%;
+            }
+        }
 
     </style>
 
@@ -73,6 +105,7 @@
 
 <div id="picture-container">
      <img id="picture" src="../images/test_1.jpg" alt="Photo de l'agent">
+    <button id="btnAccueil"><a href="/">S'identifier</a></button>
 </div>
 
 <h1>Veuillez choisir votre équipement</h1>
