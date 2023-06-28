@@ -7,8 +7,7 @@ use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Events;
 
 #[
-    AsDoctrineListener(event: Events::prePersist),
-    AsDoctrineListener(event: Events::preUpdate)
+    AsDoctrineListener(event: Events::prePersist)
 ]
 class EntitySubscriber
 {
