@@ -28,13 +28,37 @@
             text-align: center;
         }
 
+        .video-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: auto;
+            max-height: 70vh;
+        }
+
         #video {
+            width: auto;
+            height: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        #preview-container {
+            position: relative;
+            width: auto;
+            height: 100%;
+            max-width: 50%;
+        }
+
+        #preview-canvas {
             width: 100%;
             height: auto;
             max-height: 100%;
             border: 1px solid #ccc;
             border-radius: 5px;
-            margin-bottom: 20px;
+            display: none;
         }
 
         button {
@@ -66,6 +90,13 @@
             top: 20px;
             left: 20px;
         }
+        #logo1 {
+            display: none;
+        }
+        .containerButton{
+            display: flex;
+
+        }
 
         @media screen and (max-width: 480px) {
             .container {
@@ -76,65 +107,108 @@
                 max-width: 100%;
             }
         }
+        @media screen and (max-height: 700px){
+            #logo{
+                display: none;
+            }
+            #logo1{
+                width: 100px;
+                height: auto;
+                position: absolute;
+                top: 20px;
+                left: 20px;
+                display: flex;
+            }
+
+        }
     </style>
 
 </head>
 <body>
 <img src="{{ asset('images/MaxAirain.png') }}" alt="Logo" id="logo"/>
+<img src="{{ asset('images/MaxAirain_1.png') }}" alt="Logo" id="logo1"/>
 <div class="container">
-    <div>
+    <h1>Capture d'image</h1>
+    <div class="video-container">
         <video id="video" autoplay></video>
-        <button id="capture-button">s'identifier</button>
-        <button><a href="register">Créer un compte</a></button>
+        <div id="preview-container">
+            <canvas id="preview-canvas"></canvas>
+        </div>
     </div>
-
-    <script>
-        // Obtenir l'élément vidéo et le bouton de capture
-        const video = document.getElementById('video');
-        const captureButton = document.getElementById('capture-button');
-
-        // Vérifier si la caméra est disponible
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(stream => {
-                video.srcObject = stream;
-            })
-            .catch(error => {
-                console.error('Erreur lors de l\'accès à la webcam : ', error);
-            });
-
-        // Fonction pour capturer et enregistrer l'image
-        captureButton.addEventListener('click', () => {
-            // Créer un canevas pour dessiner l'image capturée
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-
-            // Dessiner l'image capturée sur le canevas
-            const context = canvas.getContext('2d');
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            // Obtenir les données de l'image au format base64
-            const imageData = canvas.toDataURL('image/jpeg');
-
-            // Créer un formulaire pour envoyer les données de l'image
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '{{ path('sign_in_save_image') }}'; // Remplacez par le chemin de la route de sauvegarde de l'image
-
-            // Créer un champ caché pour les données de l'image
-            const imageInput = document.createElement('input');
-            imageInput.type = 'hidden';
-            imageInput.name = 'image';
-            imageInput.value = imageData;
-
-            // Ajouter le champ caché au formulaire
-            form.appendChild(imageInput);
-
-            // Ajouter le formulaire à la page et le soumettre
-            document.body.appendChild(form);
-            form.submit();
-        });
-    </script>
+    <div class="containerButton">
+        <button id="capture-button">Capture d'image</button>
+        <button id="preview-button">Prévisualisation</button>
+    </div>
 </div>
+
+<script>
+    // Obtenir l'élément vidéo, le bouton de capture et le bouton de prévisualisation
+    const video = document.getElementById('video');
+    const captureButton = document.getElementById('capture-button');
+    const previewButton = document.getElementById('preview-button');
+    const previewCanvas = document.getElementById('preview-canvas');
+
+    // Vérifier si la caméra est disponible
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            video.srcObject = stream;
+        })
+        .catch(error => {
+            console.error('Erreur lors de l\'accès à la webcam : ', error);
+        });
+
+    // Fonction pour capturer et enregistrer l'image
+    captureButton.addEventListener('click', () => {
+        // Créer un canevas pour dessiner l'image capturée
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        // Dessiner l'image capturée sur le canevas
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Obtenir les données de l'image au format base64
+        const imageData = canvas.toDataURL('image/jpeg');
+
+        // Créer un formulaire pour envoyer les données de l'image
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ path('sign_in_save_image') }}'; // Remplacez par le chemin de la route de sauvegarde de l'image
+
+        // Créer un champ caché pour les données de l'image
+        const imageInput = document.createElement('input');
+        imageInput.type = 'hidden';
+        imageInput.name = 'image';
+        imageInput.value = imageData;
+
+        // Ajouter le champ caché au formulaire
+        form.appendChild(imageInput);
+
+        // Ajouter le formulaire à la page et le soumettre
+        document.body.appendChild(form);
+        form.submit();
+    });
+
+    // Fonction pour afficher la prévisualisation de l'image capturée
+    previewButton.addEventListener('click', () => {
+        // Créer un canevas pour dessiner la prévisualisation
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        // Dessiner la prévisualisation de l'image capturée sur le canevas
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Afficher la prévisualisation sur le canvas de prévisualisation
+        previewCanvas.width = canvas.width;
+        previewCanvas.height = canvas.height;
+        previewCanvas.getContext('2d').drawImage(canvas, 0, 0, previewCanvas.width, previewCanvas.height);
+
+        // Afficher le canvas de prévisualisation
+        previewCanvas.style.display = 'block';
+    });
+</script>
 </body>
 </html>
