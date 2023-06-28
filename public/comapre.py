@@ -15,7 +15,7 @@ face_encodings2 = face_recognition.face_encodings(image2)
 
 # Vérifier s'il y a un visage dans chaque image
 if len(face_encodings1) == 0 or len(face_encodings2) == 0:
-    print("Pas de visage détecté dans au moins l'une des images.")
+    print(0)
 else:
     # Sélectionner le premier encodage de visage dans chaque image
     face_encoding1 = face_encodings1[0]
