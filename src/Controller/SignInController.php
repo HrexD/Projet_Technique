@@ -14,10 +14,29 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class SignInController extends AbstractController
 {
+    private $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     #[Route('/', name: 'app_sign_in')]
     public function signIn(): Response
     {
-        return $this->render('sign_in.html.twig');
+        return $this->render(
+            'sign_in.html.twig',
+            ['error' => false]
+        );
+    }
+
+    #[Route('/no_match', name: 'no_match')]
+    public function noMatch(): Response
+    {
+        return $this->render(
+            'sign_in.html.twig',
+            ['error' => true]
+        );
     }
 
     #[Route('/signin/save-image', name: 'sign_in_save_image')]
@@ -56,30 +75,14 @@ class SignInController extends AbstractController
             // Accéder aux propriétés de l'utilisateur
             $image_user = $user->getPicture();
             
-            $message = $compareImages->Compare2Image($image_user, $imageName);
-            if($message =="true") {
-                $trouver = 1;
+            $match = $compareImages->Compare2Image($image_user, $imageName);
+            if($match) {
                 $id_user = $user->getId();
-                echo "Les images sont similaires avec ".$id_user;
-
+                return $this->redirectToRoute('app_items', ['id' => $id_user]);
             }
             else {
-                
+                return $this->redirectToRoute('no_match');
             }
         }
-        
-        if ($trouver == 0) {
-            return new RedirectResponse('http://127.0.0.1:8000/');
-        } else {
-            return new RedirectResponse('http://127.0.0.1:8000/items/'.$id_user);
-        }
-        
-        return new Response('L\'image a été enregistrée avec succès dans le dossier public/images.');
-    }
-    private $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
-    {
-        $this->entityManager = $entityManager;
     }
 }
