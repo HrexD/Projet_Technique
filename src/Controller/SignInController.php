@@ -71,7 +71,7 @@ class SignInController extends AbstractController
         if ($trouver == 0) {
             return new RedirectResponse('http://127.0.0.1:8000/');
         } else {
-            return new RedirectResponse('http://127.0.0.1:8000/item/'.$id_user);
+            return new RedirectResponse('http://127.0.0.1:8000/items/'.$id_user);
         }
         
         return new Response('L\'image a été enregistrée avec succès dans le dossier public/images.');
