@@ -37,7 +37,7 @@
             margin-bottom: 20px;
         }
 
-        #capture-button {
+        button {
             display: block;
             width: 100%;
             max-width: 300px;
@@ -52,8 +52,12 @@
             text-transform: uppercase;
         }
 
-        #capture-button:hover {
+        button:hover {
             background-color: #267c97;
+        }
+        a{
+            text-decoration: none;
+            color:white;
         }
         #logo {
             width: 250px;
@@ -81,6 +85,7 @@
     <div>
         <video id="video" autoplay></video>
         <button id="capture-button">s'identifier</button>
+        <button><a href="register">Créer un compte</a></button>
     </div>
 
     <script>
