@@ -5,7 +5,7 @@ class CompareImage
     /**
      * @Route("/compareImages", name="compare_images")
      */
-    public function Compare2Image($image1, $image2): string
+    public function Compare2Image($image1, $image2): bool
     {
         $pythonScript = './comapre.py';
         
@@ -21,11 +21,9 @@ class CompareImage
         echo $output;
         // Afficher la sortie
         if ($output>55) {
-            echo 'SIUUUUUUUUUUUUUUUUUUUUUUUU';
-            return "true";
+            return true;
         } else {
-            echo 'zebi';
-            return "false";
+            return false;
         }
     }
 }

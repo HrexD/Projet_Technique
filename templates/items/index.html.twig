@@ -144,6 +144,7 @@
             event.preventDefault(); // Empêche la soumission du formulaire
 
             var bookingData = {
+                // ajouter au bon user de la scession
                 user: "api/users/1"
             }; 
 
@@ -154,7 +155,6 @@
                 data: JSON.stringify(bookingData),
                 contentType: 'application/json',
                 success: function(response) {
-                    // Gérer la réponse de l'API ici
                     console.log(response.id);
                     bookingId = response.id;
 
