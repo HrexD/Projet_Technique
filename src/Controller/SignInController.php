@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controller;
+
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -51,13 +52,10 @@ class SignInController extends AbstractController
         $counter = $cache->getItem('image_counter');
         $counterValue = $counter->get() ?? 0;
 
-        // Incrémenter le compteur
-        $counterValue++;
-        $counter->set($counterValue);
-        $cache->save($counter);
+       // Définir le nom de l'image
 
-        // Définir le nom de l'image avec le compteur
         $imageName = 'identification_scan.jpg';
+
 
         // Chemin de destination pour enregistrer l'image
         $imagePath = $this->getParameter('kernel.project_dir') . '/public/images/' . $imageName;
@@ -69,17 +67,17 @@ class SignInController extends AbstractController
 
         // Récupérer tous les utilisateurs
         $users = $userRepository->findAll();
-        
+
         // Faire quelque chose avec les utilisateurs récupérés
         foreach ($users as $user) {
             // Accéder aux propriétés de l'utilisateur
             $image_user = $user->getPicture();
-            
+
             $match = $compareImages->Compare2Image($image_user, $imageName);
-            
+
             if($match) {
                 $id_user = $user->getId();
-                
+
                 return $this->redirectToRoute('app_items', ['id' => $id_user]);
             }
         }

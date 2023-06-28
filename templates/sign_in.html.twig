@@ -97,6 +97,25 @@
             display: flex;
 
         }
+        .error-message {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f44336;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 20px auto;
+            max-width: 500px;
+            text-align: center;
+            animation: fade-out 1s linear 5s forwards;
+        }
+
+        @keyframes fade-out {
+            0% { opacity: 1; }
+            100% { opacity: 0; display: none}
+        }
+
 
         @media screen and (max-width: 480px) {
             .container {
@@ -125,6 +144,11 @@
 
 </head>
 <body>
+{% if error %}
+    <div class="error-message">
+        Une erreur s'est produite lors de la correspondance de l'image. Veuillez réessayer.
+    </div>
+{% endif %}
 <img src="{{ asset('images/MaxAirain.png') }}" alt="Logo" id="logo"/>
 <img src="{{ asset('images/MaxAirain_1.png') }}" alt="Logo" id="logo1"/>
 <div class="container">
@@ -188,6 +212,11 @@
         // Ajouter le formulaire à la page et le soumettre
         document.body.appendChild(form);
         form.submit();
+
+        // Afficher la prévisualisation de l'image capturée sur le canevas de prévisualisation
+        previewCanvas.width = canvas.width;
+        previewCanvas.height = canvas.height;
+        previewCanvas.getContext('2d').drawImage(canvas, 0, 0, previewCanvas.width, previewCanvas.height);
     });
 
     // Fonction pour afficher la prévisualisation de l'image capturée
@@ -210,5 +239,6 @@
         previewCanvas.style.display = 'block';
     });
 </script>
+
 </body>
 </html>
