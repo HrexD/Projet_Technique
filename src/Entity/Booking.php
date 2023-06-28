@@ -25,8 +25,8 @@ class Booking
     #[ORM\Column(name: 'end_date', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $endDate = null;
 
-    #[ORM\ManyToOne(inversedBy: 'Bookings')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(inversedBy: 'bookings')]
+    #[ORM\JoinColumn(name: 'user_id', nullable: false)]
     private ?User $user = null;
 
     #[ORM\OneToMany(mappedBy: 'booking', targetEntity: BookingEntry::class)]

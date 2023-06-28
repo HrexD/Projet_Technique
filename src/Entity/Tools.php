@@ -28,6 +28,9 @@ class Tools
     #[ORM\OneToMany(mappedBy: 'tools', targetEntity: BookingEntry::class)]
     private Collection $bookingEntries;
 
+    #[ORM\Column(name: 'slug', length: 255)]
+    private ?string $slug = "";
+
     public function __construct()
     {
         $this->bookingEntries = new ArrayCollection();
@@ -88,6 +91,18 @@ class Tools
                 $bookingEntry->setTools(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
 
         return $this;
     }
