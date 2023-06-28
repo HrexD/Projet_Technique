@@ -29,14 +29,14 @@ class User
     private ?string $role = 'Vigile';
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Booking::class)]
-    private Collection $Bookings;
+    private Collection $bookings;
 
-    #[ORM\OneToOne(mappedBy: 'relatedUser', cascade: ['persist', 'remove'])]
-    private ?Pictures $pictures = null;
+    #[ORM\Column(name: 'picture', length: 255)]
+    private ?string $picture = '';
 
     public function __construct()
     {
-        $this->Bookings = new ArrayCollection();
+        $this->bookings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -85,13 +85,13 @@ class User
      */
     public function getBookings(): Collection
     {
-        return $this->Bookings;
+        return $this->bookings;
     }
 
     public function addBooking(Booking $booking): static
     {
-        if (!$this->Bookings->contains($booking)) {
-            $this->Bookings->add($booking);
+        if (!$this->bookings->contains($booking)) {
+            $this->bookings->add($booking);
             $booking->setUser($this);
         }
 
@@ -100,7 +100,7 @@ class User
 
     public function removeBooking(Booking $booking): static
     {
-        if ($this->Bookings->removeElement($booking)) {
+        if ($this->bookings->removeElement($booking)) {
             // set the owning side to null (unless already changed)
             if ($booking->getUser() === $this) {
                 $booking->setUser(null);
@@ -110,22 +110,16 @@ class User
         return $this;
     }
 
-    public function getPictures(): ?Pictures
+    public function getPicture(): ?string
     {
-        return $this->pictures;
+        return $this->picture;
     }
 
-    public function setPictures(Pictures $pictures): static
+    public function setPicture(string $picture): static
     {
-        // set the owning side of the relation if necessary
-        if ($pictures->getRelatedUser() !== $this) {
-            $pictures->setRelatedUser($this);
-        }
-
-        $this->pictures = $pictures;
+        $this->picture = $picture;
 
         return $this;
     }
-
     
 }
