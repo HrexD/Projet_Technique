@@ -24,7 +24,10 @@ class SignInController extends AbstractController
     #[Route('/', name: 'app_sign_in')]
     public function signIn(): Response
     {
-        return $this->render('sign_in.html.twig');
+        return $this->render(
+            'sign_in.html.twig',
+            ['error' => false]
+        );
     }
 
     #[Route('/no_match', name: 'no_match')]
@@ -32,7 +35,7 @@ class SignInController extends AbstractController
     {
         return $this->render(
             'sign_in.html.twig',
-            ['error' => 'Aucun utilisateur ne correspond à cette image.']
+            ['error' => true]
         );
     }
 
