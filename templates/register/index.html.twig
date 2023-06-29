@@ -82,13 +82,13 @@
             <input type="text" id="prenom" name="prenom" required>
 
             <div class="buttonContainer">
-                <button id="capture-button" disabled>Prendre une photo</button>
+                <button type="button" id="capture-button" disabled>Prendre une photo</button>
                 <button type="submit">S'inscrire</button>
             </div>
         </form>
     </div>
 </div>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     let isPreviewMode = false;
     let videoStream = null;
@@ -98,7 +98,7 @@
     const captureButton = document.getElementById('capture-button');
     const form = document.querySelector('form');
     let photo = null;
-
+    var image_name= "";
     captureButton.addEventListener('click', () => {
         if (!isPreviewMode) {
             // Afficher la prévisualisation de la photo
@@ -106,7 +106,7 @@
             canvas.height = video.videoHeight;
             const context = canvas.getContext('2d');
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            canvas.style.display = 'block';
+            canvas.style.display = 'none';
             isPreviewMode = true;
 
             // Mettre à jour la source de l'image existante avec la nouvelle photo
@@ -119,6 +119,7 @@
                 const photoName = document.getElementById('nom').value + '_' + photoCounter;
                 photo.src = canvas.toDataURL('image/jpeg');
                 photo.alt = photoName;
+                image_name = photoName;
                 photo.classList.add('photo');
                 photoContainer.appendChild(photo);
                 photoCounter++;
@@ -136,20 +137,30 @@
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
 
-        fetch('/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
+        const nom = document.getElementById('nom').value;
+        const prenom = document.getElementById('prenom').value;
+        const image = image_name;
+        var donnee_user = {
+            "lastName": nom,
+            "firstName": prenom,
+            "role": "Vigile",
+            "picture": image
+        };
+        console.log(donnee_user);
+        $.ajax({
+            type: 'POST',
+            url: '/api/users',
+            data: JSON.stringify(donnee_user),
+            contentType: 'application/json',
+            success: function(response) {
+                // Gérer la réponse de l'API ici
+                console.log(response);
             },
-            body: JSON.stringify(data),
-        })
-            .then(response => response.json())
-            .then(responseData => {
-                console.log(responseData);
-            })
-            .catch(error => {
-                console.error('Erreur lors de la soumission du formulaire :', error);
-            });
+            error: function(xhr, status, error) {
+                // Gérer les erreurs de requête ici
+                console.error(error);
+            }
+        });
     });
 
     navigator.mediaDevices.getUserMedia({ video: true })
