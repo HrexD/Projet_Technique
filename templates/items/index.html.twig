@@ -111,21 +111,108 @@
 <h1>Veuillez choisir votre équipement</h1>
 
 <div id="checkbox-container">
-    <form action="" id="toolsForm" method="POST" class="form">
+    {% if booking is not null %}
+        <form action="" id="returnTools" method="POST" class="form">
+    {% else %}
+        <form action="" id="toolsForm" method="POST" class="form">
+    {% endif %}
             {% for tool in tools %}
                 <div>
-                    <input type="checkbox" id="{{ tool.id }}" name="{{ tool.slug }}" {{ tool.quantity <= 0 ? "disabled" : "" }}>
+                    <input type="checkbox" id="{{ tool.id }}"  {{ tool.quantity <= 0 ? "disabled" : "" }}
+                    {% if booking is not null %}
+                        {% for selected in booking.bookingEntries %}
+                            {% if selected.tools.id == tool.id %}
+                                name="{{ selected.id }}"
+                                checked
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        name="{{ tool.slug }}"
+                    {% endif %}
+                    >
                     <label for="{{ tool.slug }}" style="{{ tool.quantity <= 0 ? "text-decoration: line-through;" : "" }}">{{ tool.name }}</label>
                 </div>
             {% endfor %}
         <div class="button-container">
-            <input id="button" type="submit" value="Valider">
+            <input id="button" type="submit" value={{ booking is not null ? "Modifier" : "Valider" }}>
         </div>
     </form>    
 </div>
 
 <script>
     $(document).ready(function() {
+        var allCheckBoxes = document.querySelectorAll('input[type="checkbox"]');
+        var checkedTools = [];
+
+        allCheckBoxes.forEach(function(checkbox) {
+                // Vérifiez si la valeur de la checkbox est égale à 1
+                
+                if (checkbox.value === 'on' && checkbox.checked) {
+                    // Ajoutez le nom de la checkbox au tableau
+                    checkedTools.push(checkbox.id);
+                }
+        });
+
+        $('#returnTools').submit(function(event) {
+            var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+            var checkboxNames = [];
+            var toolsToDelete = [];
+
+            event.preventDefault(); // Empêche la soumission du formulaire
+
+            checkboxes.forEach(function(checkbox) {
+                // Vérifiez si la valeur de la checkbox est égale à 1
+                
+                if (checkbox.value === 'on' && checkbox.checked && !checkedTools.includes(checkbox.id)) {
+                    checkboxNames.push(checkbox.id);
+
+                }
+                
+                if (checkbox.value === 'on' && !checkbox.checked && checkedTools.includes(checkbox.id)) {
+                    toolsToDelete.push(checkbox.name);
+                    checkedTools.push(checkbox.id);
+                }
+            });
+
+            checkboxNames.forEach(function(name) {
+                var formData = {
+                    booking: "api/bookings/" + {{ booking is not null ? booking.id : "50"}},
+                    tools: "api/tools/" + name
+                };
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/api/booking_entries',
+                    data: JSON.stringify(formData),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        // Gérer la réponse de l'API ici
+                        console.log(response);
+                    },
+                    error: function(xhr, status, error) {
+                        // Gérer les erreurs de requête ici
+                        console.error(error);
+                    }
+                });
+            });
+
+            toolsToDelete.forEach(function(id) {
+                $.ajax({
+                    type: 'DELETE',
+                    url: '/api/booking_entries/' + id,
+                    success: function(response) {
+                        // Gérer la réponse de l'API ici
+                        console.log(response);
+                    },
+                    error: function(xhr, status, error) {
+                        // Gérer les erreurs de requête ici
+                        console.error(error);
+                    }
+                });
+            });
+        });
+
         $('#toolsForm').submit(function(event) {
             var checkboxes = document.querySelectorAll('input[type="checkbox"]');
 
@@ -144,8 +231,8 @@
             event.preventDefault(); // Empêche la soumission du formulaire
 
             var bookingData = {
-                // ajouter au bon user de la scession
-                user: "api/users/1"
+                // ajouter au bon user de la session
+                user: "api/users/{{ user.id }}",
             }; 
 
             var bookingId;

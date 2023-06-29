@@ -18,12 +18,11 @@ class ItemsController extends AbstractController
         $user = $manager->getRepository(User::class)->find($id);
         $booking = $manager->getRepository(Booking::class)->findOneBy(['endDate' => null, 'user' => $user]);
 
-        dump($booking);
-
         $tools = $toolsRepository->findAll();
 
         return $this->render('items/index.html.twig', [
             'user' => $user,
+            'booking' => $booking,
             'tools' => $tools,
         ]);
     }
