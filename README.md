@@ -6,3 +6,5 @@ composer install
 
 //bibliothèque python pour la reconnaissance faciale :
 pip install face_recognition
+
+La documentation du projet est présente sous le nom "Documentation_technique.docx"
