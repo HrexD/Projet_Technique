@@ -87,6 +87,20 @@
             background-color: #2e829e;
         }
 
+        .error-message {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #008000;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 20px auto;
+            max-width: 500px;
+            text-align: center;
+            animation: fade-out 1s linear 5s forwards;
+        }
+
 @media screen and (max-width: 480px) {
             .container {
                 padding: 10px;
@@ -137,6 +151,13 @@
             <input id="button" type="submit" value={{ booking is not null ? "Modifier" : "Valider" }}>
         </div>
     </form>    
+    <div class="error-message" id="alert_crea" style="display:none">
+        La liste à été validé avec succès. 
+    </div>
+
+    <div class="error-message" id="alert_modif" style="display:none" >
+        La liste à été modifier avec succès. 
+    </div>
 </div>
 
 <script>
@@ -189,6 +210,7 @@
                     success: function(response) {
                         // Gérer la réponse de l'API ici
                         console.log(response);
+                        document.getElementById("alert_modif").style.display = "block";
                     },
                     error: function(xhr, status, error) {
                         // Gérer les erreurs de requête ici
@@ -244,7 +266,7 @@
                 success: function(response) {
                     console.log(response.id);
                     bookingId = response.id;
-
+                    document.getElementById("alert_crea").style.display = "block";
                     checkboxNames.forEach(function(name) {
                         var formData = {
                             booking: "api/bookings/" + bookingId,
