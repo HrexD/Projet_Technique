@@ -132,7 +132,7 @@
     {% endif %}
             {% for tool in tools %}
                 <div>
-                    <input type="checkbox" id="{{ tool.id }}"  {{ tool.quantity <= 0 ? "disabled" : "" }}
+                    <input type="checkbox" id="{{ tool.id }}"  {{ (tool.quantity <= 0  and booking is null) ? "disabled" : "" }}
                     {% if booking is not null %}
                         {% for selected in booking.bookingEntries %}
                             {% if selected.tools.id == tool.id %}
@@ -144,7 +144,7 @@
                         name="{{ tool.slug }}"
                     {% endif %}
                     >
-                    <label for="{{ tool.slug }}" style="{{ tool.quantity <= 0 ? "text-decoration: line-through;" : "" }}">{{ tool.name }}</label>
+                    <label for="{{ tool.slug }}" style="{{ (tool.quantity <= 0  and booking is null) ? "text-decoration: line-through;" : "" }}">{{ tool.name }}</label>
                 </div>
             {% endfor %}
         <div class="button-container">
@@ -152,11 +152,11 @@
         </div>
     </form>    
     <div class="error-message" id="alert_crea" style="display:none">
-        La liste à été validé avec succès. 
+        La liste a été validée avec succès. 
     </div>
 
     <div class="error-message" id="alert_modif" style="display:none" >
-        La liste à été modifier avec succès. 
+        La liste a été modifiée avec succès. 
     </div>
 </div>
 
@@ -233,6 +233,8 @@
                     }
                 });
             });
+
+            document.getElementById("alert_modif").style.display = "block";
         });
 
         $('#toolsForm').submit(function(event) {
