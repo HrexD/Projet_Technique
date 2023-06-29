@@ -62,10 +62,12 @@ class BookingEntrySubscriber implements EventSubscriber
     {
         if (!empty($this->reservation)) {
             foreach ($this->reservation as $booking) {
-                $booking->setEndDate(new \DateTimeImmutable());
-                $this->manager->persist($booking);
+                if ($booking->getBookingEntries()->isEmpty()) {
+                    $booking->setEndDate(new \DateTimeImmutable());
+                    $this->manager->persist($booking);
+                }
             }
-            
+
             $this->reservation = [];
             $this->manager->flush();
         }
