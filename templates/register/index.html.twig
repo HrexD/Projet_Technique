@@ -1,3 +1,5 @@
+{# templates/register/index.html.twig #}
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -74,12 +76,14 @@
         <canvas id="canvas" style="display: none;"></canvas>
     </div>
     <div class="form-container">
-        <form method="POST" action="/register">
+        <form method="POST" action="{{ path('app_register') }}" enctype="multipart/form-data">
             <label for="nom">Nom :</label>
             <input type="text" id="nom" name="nom" required>
 
             <label for="prenom">Prénom :</label>
             <input type="text" id="prenom" name="prenom" required>
+
+            {# Supprimer la zone de téléchargement de l'image #}
 
             <div class="buttonContainer">
                 <button type="button" id="capture-button" disabled>Prendre une photo</button>
@@ -166,7 +170,7 @@
                 console.log('Photo enregistrée avec succès:', responseData);
 
                 // Envoi des données utilisateur au serveur
-                fetch('/register', {
+                fetch('{{ path('app_register') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
