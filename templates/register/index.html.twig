@@ -1,141 +1,168 @@
-{% extends 'base.html.twig' %}
-
-{% block title %}Hello RegisterController!{% endblock %}
-
-{% block body %}
-
+<!DOCTYPE html>
 <html>
 <head>
     <title>Inscription</title>
-</head>
-<style>
-    .container {
-        display: flex;
-    }
-
-    .photo-container {
-        flex: 1;
-    }
-
-    .photo-container video {
-        width: 100%;
-        height: auto;
-        max-height: 100%;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        margin-bottom: 20px;
-    }
-
-    .form-container {
-        flex: 1;
-        padding-left: 20px; /* Ajoutez un espacement entre la photo et le formulaire */
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
-    form{
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .button-container {
-        display: flex;
-        justify-content: space-between; /* Aligner les boutons horizontalement */
-    }
-
-    .button-container button {
-        width: 48%; /* Ajuster la largeur des boutons en fonction de la mise en page souhaitée */
-    }
-
-    @media screen and (max-width: 767px) {
+    <style>
         .container {
-            flex-direction: column; /* Afficher les éléments en colonne sur mobile */
+            display: flex;
+        }
+
+        .photo-container {
+            flex: 1;
+        }
+
+        .photo-container video {
+            width: 100%;
+            height: auto;
+            max-height: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 20px;
         }
 
         .form-container {
-            padding-left: 0; /* Supprimer l'espacement entre la photo et le formulaire sur mobile */
-            margin-top: 20px; /* Ajouter un espacement entre la photo et le formulaire sur mobile */
+            flex: 1;
+            padding-left: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         .button-container {
-            flex-direction: column; /* Afficher les boutons en colonne sur mobile */
+            display: flex;
+            justify-content: space-between;
         }
 
         .button-container button {
-            width: 100%; /* Ajuster la largeur des boutons à 100% sur mobile */
-            margin-top: 10px; /* Ajouter un espacement entre les boutons sur mobile */
+            width: 48%;
         }
-    }
 
+        @media screen and (max-width: 767px) {
+            .container {
+                flex-direction: column;
+            }
 
-</style>
+            .form-container {
+                padding-left: 0;
+                margin-top: 20px;
+            }
+
+            .button-container {
+                flex-direction: column;
+            }
+
+            .button-container button {
+                width: 100%;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
 <body>
-    <h1>Inscription</h1>
-    <div class="container">
-        <div class="photo-container">
-            <video id="video" autoplay></video>
-
-        </div>
-        <div class="form-container">
-            <form method="POST" action="/register" style="
-
-">
-                <label for="nom">Nom :</label>
-                <input type="text" id="nom" name="nom" required="">
-
-                <label for="prenom">Prénom :</label>
-                <input type="text" id="prenom" name="prenom" required="">
-
-                <label for="role">Rôle :</label>
-                <input type="text" id="role" name="role" required="">
-
-                <div class="buttonContainer">
-                    <button id="capture-button">Prendre une photo</button>
-                    <button type="submit">S'inscrire</button>
-                </div>
-            </form>
-        </div>
+<h1>Inscription</h1>
+<div class="container">
+    <div class="photo-container">
+        <video id="video" autoplay></video>
+       <canvas id="canvas" style="display: none;"></canvas>
     </div>
+    <div class="form-container">
+        <form method="POST" action="/register">
+            <label for="nom">Nom :</label>
+            <input type="text" id="nom" name="nom" required>
 
-</body>
+            <label for="prenom">Prénom :</label>
+            <input type="text" id="prenom" name="prenom" required>
+
+            <div class="buttonContainer">
+                <button id="capture-button" disabled>Prendre une photo</button>
+                <button type="submit">S'inscrire</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script>
-    // Obtenir l'élément vidéo et le bouton de capture
+    let isPreviewMode = false;
+    let videoStream = null;
+    let photoCounter = 1;
     const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
     const captureButton = document.getElementById('capture-button');
+    const form = document.querySelector('form');
+    let photo = null;
 
-    // Vérifier si la caméra est disponible
-    navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => {
-            video.srcObject = stream;
-        })
-        .catch(error => {
-            console.error('Erreur lors de l\'accès à la webcam : ', error);
-        });
-
-    // Fonction pour capturer et afficher la photo
     captureButton.addEventListener('click', () => {
-        // Créer un canevas pour dessiner l'image capturée
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        if (!isPreviewMode) {
+            // Afficher la prévisualisation de la photo
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            canvas.style.display = 'block';
+            isPreviewMode = true;
 
-        // Dessiner l'image capturée sur le canevas
-        const context = canvas.getContext('2d');
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        // Créer un élément image pour afficher la photo capturée
-        const photoContainer = document.querySelector('.photo-container');
-        const photo = document.createElement('img');
-        photo.src = canvas.toDataURL('image/jpeg');
-        photo.classList.add('photo');
-        photoContainer.appendChild(photo);
+            // Mettre à jour la source de l'image existante avec la nouvelle photo
+            if (photo) {
+                photo.src = canvas.toDataURL('image/jpeg');
+            } else {
+                // Créer un élément image pour afficher la photo capturée
+                const photoContainer = document.querySelector('.photo-container');
+                photo = document.createElement('img');
+                const photoName = document.getElementById('nom').value + '_' + photoCounter;
+                photo.src = canvas.toDataURL('image/jpeg');
+                photo.alt = photoName;
+                photo.classList.add('photo');
+                photoContainer.appendChild(photo);
+                photoCounter++;
+            }
+        } else {
+            // Revenir à la vidéo en direct
+            canvas.style.display = 'none';
+            isPreviewMode = false;
+        }
     });
 
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
 
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        fetch('/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+            .then(response => response.json())
+            .then(responseData => {
+                console.log(responseData);
+            })
+            .catch(error => {
+                console.error('Erreur lors de la soumission du formulaire :', error);
+            });
+    });
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            videoStream = stream;
+            video.srcObject = stream;
+            video.play();
+            captureButton.disabled = false;
+        })
+        .catch(error => {
+            console.error('Erreur lors de l\'accès à la webcam :', error);
+        });
 </script>
+
+</body>
 </html>
-{% endblock %}
