@@ -71,7 +71,7 @@
 <div class="container">
     <div class="photo-container">
         <video id="video" autoplay></video>
-       <canvas id="canvas" style="display: none;"></canvas>
+        <canvas id="canvas" style="display: none;"></canvas>
     </div>
     <div class="form-container">
         <form method="POST" action="/register">
@@ -98,7 +98,8 @@
     const captureButton = document.getElementById('capture-button');
     const form = document.querySelector('form');
     let photo = null;
-    var image_name= "";
+    var image_name = "";
+
     captureButton.addEventListener('click', () => {
         if (!isPreviewMode) {
             // Afficher la prévisualisation de la photo
@@ -116,7 +117,7 @@
                 // Créer un élément image pour afficher la photo capturée
                 const photoContainer = document.querySelector('.photo-container');
                 photo = document.createElement('img');
-                const photoName = document.getElementById('nom').value + '_' + photoCounter;
+                const photoName = document.getElementById('nom').value + '_' + photoCounter + '.jpg';
                 photo.src = canvas.toDataURL('image/jpeg');
                 photo.alt = photoName;
                 image_name = photoName;
@@ -140,27 +141,49 @@
         const nom = document.getElementById('nom').value;
         const prenom = document.getElementById('prenom').value;
         const image = image_name;
-        var donnee_user = {
+        const donnee_user = {
             "lastName": nom,
             "firstName": prenom,
             "role": "Vigile",
             "picture": image
         };
         console.log(donnee_user);
-        $.ajax({
-            type: 'POST',
-            url: '/api/users',
-            data: JSON.stringify(donnee_user),
-            contentType: 'application/json',
-            success: function(response) {
-                // Gérer la réponse de l'API ici
-                console.log(response);
-            },
-            error: function(xhr, status, error) {
-                // Gérer les erreurs de requête ici
-                console.error(error);
-            }
-        });
+
+        // Enregistrement de la photo dans le dossier public/images
+        const base64Image = photo.src.split(';base64,').pop();
+        const imageBlob = base64ToBlob(base64Image, 'image/jpeg');
+        const imageName = image_name;
+
+        const formDataImage = new FormData();
+        formDataImage.append('image', imageBlob, imageName);
+
+        fetch('/images', {
+            method: 'POST',
+            body: formDataImage,
+        })
+            .then(response => response.json())
+            .then(responseData => {
+                console.log('Photo enregistrée avec succès:', responseData);
+
+                // Envoi des données utilisateur au serveur
+                fetch('/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(donnee_user),
+                })
+                    .then(response => response.json())
+                    .then(responseData => {
+                        console.log('Utilisateur enregistré avec succès:', responseData);
+                    })
+                    .catch(error => {
+                        console.error('Erreur lors de la soumission du formulaire:', error);
+                    });
+            })
+            .catch(error => {
+                console.error('Erreur lors de l\'enregistrement de la photo:', error);
+            });
     });
 
     navigator.mediaDevices.getUserMedia({ video: true })
@@ -171,8 +194,28 @@
             captureButton.disabled = false;
         })
         .catch(error => {
-            console.error('Erreur lors de l\'accès à la webcam :', error);
+            console.error('Erreur lors de l\'accès à la webcam:', error);
         });
+
+    function base64ToBlob(base64, mime) {
+        const sliceSize = 1024;
+        const byteChars = window.atob(base64);
+        const byteArrays = [];
+
+        for (let offset = 0; offset < byteChars.length; offset += sliceSize) {
+            const slice = byteChars.slice(offset, offset + sliceSize);
+
+            const byteNumbers = new Array(slice.length);
+            for (let i = 0; i < slice.length; i++) {
+                byteNumbers[i] = slice.charCodeAt(i);
+            }
+
+            const byteArray = new Uint8Array(byteNumbers);
+            byteArrays.push(byteArray);
+        }
+
+        return new Blob(byteArrays, { type: mime });
+    }
 </script>
 
 </body>
