@@ -87,6 +87,20 @@
             background-color: #2e829e;
         }
 
+        .error-message {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #008000;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 20px auto;
+            max-width: 500px;
+            text-align: center;
+            animation: fade-out 1s linear 5s forwards;
+        }
+
 @media screen and (max-width: 480px) {
             .container {
                 padding: 10px;
@@ -104,28 +118,125 @@
 <body>
 
 <div id="picture-container">
-     <img id="picture" src="../images/test_1.jpg" alt="Photo de l'agent">
+     <img id="picture" src="../images/{{ user.picture }}" alt="Photo de l'agent">
     <button id="btnAccueil"><a href="/">S'identifier</a></button>
 </div>
 
 <h1>Veuillez choisir votre équipement</h1>
 
 <div id="checkbox-container">
-    <form action="" id="toolsForm" method="POST" class="form">
+    {% if booking is not null %}
+        <form action="" id="returnTools" method="POST" class="form">
+    {% else %}
+        <form action="" id="toolsForm" method="POST" class="form">
+    {% endif %}
             {% for tool in tools %}
                 <div>
-                    <input type="checkbox" id="{{ tool.id }}" name="{{ tool.slug }}" {{ tool.quantity <= 0 ? "disabled" : "" }}>
-                    <label for="{{ tool.slug }}" style="{{ tool.quantity <= 0 ? "text-decoration: line-through;" : "" }}">{{ tool.name }}</label>
+                    <input type="checkbox" id="{{ tool.id }}"  {{ (tool.quantity <= 0  and booking is null) ? "disabled" : "" }}
+                    {% if booking is not null %}
+                        {% for selected in booking.bookingEntries %}
+                            {% if selected.tools.id == tool.id %}
+                                name="{{ selected.id }}"
+                                checked
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        name="{{ tool.slug }}"
+                    {% endif %}
+                    >
+                    <label for="{{ tool.slug }}" style="{{ (tool.quantity <= 0  and booking is null) ? "text-decoration: line-through;" : "" }}">{{ tool.name }}</label>
                 </div>
             {% endfor %}
         <div class="button-container">
-            <input id="button" type="submit" value="Valider">
+            <input id="button" type="submit" value={{ booking is not null ? "Modifier" : "Valider" }}>
         </div>
     </form>    
+    <div class="error-message" id="alert_crea" style="display:none">
+        La liste a été validée avec succès. 
+    </div>
+
+    <div class="error-message" id="alert_modif" style="display:none" >
+        La liste a été modifiée avec succès. 
+    </div>
 </div>
 
 <script>
     $(document).ready(function() {
+        var allCheckBoxes = document.querySelectorAll('input[type="checkbox"]');
+        var checkedTools = [];
+
+        allCheckBoxes.forEach(function(checkbox) {
+                // Vérifiez si la valeur de la checkbox est égale à 1
+                
+                if (checkbox.value === 'on' && checkbox.checked) {
+                    // Ajoutez le nom de la checkbox au tableau
+                    checkedTools.push(checkbox.id);
+                }
+        });
+
+        $('#returnTools').submit(function(event) {
+            var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+            var checkboxNames = [];
+            var toolsToDelete = [];
+
+            event.preventDefault(); // Empêche la soumission du formulaire
+
+            checkboxes.forEach(function(checkbox) {
+                // Vérifiez si la valeur de la checkbox est égale à 1
+                
+                if (checkbox.value === 'on' && checkbox.checked && !checkedTools.includes(checkbox.id)) {
+                    checkboxNames.push(checkbox.id);
+
+                }
+                
+                if (checkbox.value === 'on' && !checkbox.checked && checkedTools.includes(checkbox.id)) {
+                    toolsToDelete.push(checkbox.name);
+                    checkedTools.push(checkbox.id);
+                }
+            });
+
+            checkboxNames.forEach(function(name) {
+                var formData = {
+                    booking: "api/bookings/" + {{ booking is not null ? booking.id : "50"}},
+                    tools: "api/tools/" + name
+                };
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/api/booking_entries',
+                    data: JSON.stringify(formData),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        // Gérer la réponse de l'API ici
+                        console.log(response);
+                        document.getElementById("alert_modif").style.display = "block";
+                    },
+                    error: function(xhr, status, error) {
+                        // Gérer les erreurs de requête ici
+                        console.error(error);
+                    }
+                });
+            });
+
+            toolsToDelete.forEach(function(id) {
+                $.ajax({
+                    type: 'DELETE',
+                    url: '/api/booking_entries/' + id,
+                    success: function(response) {
+                        // Gérer la réponse de l'API ici
+                        console.log(response);
+                    },
+                    error: function(xhr, status, error) {
+                        // Gérer les erreurs de requête ici
+                        console.error(error);
+                    }
+                });
+            });
+
+            document.getElementById("alert_modif").style.display = "block";
+        });
+
         $('#toolsForm').submit(function(event) {
             var checkboxes = document.querySelectorAll('input[type="checkbox"]');
 
@@ -144,7 +255,8 @@
             event.preventDefault(); // Empêche la soumission du formulaire
 
             var bookingData = {
-                user: "api/users/1"
+                // ajouter au bon user de la session
+                user: "api/users/{{ user.id }}",
             }; 
 
             var bookingId;
@@ -154,10 +266,9 @@
                 data: JSON.stringify(bookingData),
                 contentType: 'application/json',
                 success: function(response) {
-                    // Gérer la réponse de l'API ici
                     console.log(response.id);
                     bookingId = response.id;
-
+                    document.getElementById("alert_crea").style.display = "block";
                     checkboxNames.forEach(function(name) {
                         var formData = {
                             booking: "api/bookings/" + bookingId,
