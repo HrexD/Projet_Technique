@@ -200,7 +200,7 @@
 
             <div class="buttonContainer">
                 <button type="button" id="capture-button" disabled>Prendre une photo</button>
-                <button type="submit">S'inscrire</button>
+                <button type="submit" id="submit" style="display: none; ">S'inscrire</button>
             </div>
         </form>
     </div>
@@ -216,6 +216,7 @@
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const captureButton = document.getElementById('capture-button');
+    const submitButton = document.getElementById('submit');
     const form = document.querySelector('form');
     let photo = null;
     var image_name = "";
@@ -229,6 +230,7 @@
             const context = canvas.getContext('2d');
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
             canvas.style.display = 'block';
+            submitButton.style.display = 'block';
             isPreviewMode = true;
 
             // Mettre à jour la source de l'image existante avec la nouvelle photo
@@ -250,6 +252,7 @@
         } else {
             // Revenir à la vidéo en direct
             canvas.style.display = 'none';
+            submitButton.style.display = 'none';
             isPreviewMode = false;
         }
     });
