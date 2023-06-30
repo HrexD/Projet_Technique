@@ -103,6 +103,7 @@
     const form = document.querySelector('form');
     let photo = null;
     var image_name = "";
+    var image_encode = "";
 
     captureButton.addEventListener('click', () => {
         if (!isPreviewMode) {
@@ -123,6 +124,7 @@
                 photo = document.createElement('img');
                 const photoName = document.getElementById('nom').value + '_' + photoCounter + '.jpg';
                 photo.src = canvas.toDataURL('image/jpeg');
+                image_encode = canvas.toDataURL('image/jpeg');
                 photo.alt = photoName;
                 image_name = photoName;
                 photo.classList.add('photo');
@@ -139,8 +141,8 @@
     form.addEventListener('submit', (event) => {
         event.preventDefault();
 
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
+        //const formData = new FormData(form);
+        //const data = Object.fromEntries(formData.entries());
 
         const nom = document.getElementById('nom').value;
         const prenom = document.getElementById('prenom').value;
@@ -158,36 +160,51 @@
         const imageBlob = base64ToBlob(base64Image, 'image/jpeg');
         const imageName = image_name;
 
-        const formDataImage = new FormData();
-        formDataImage.append('image', imageBlob, imageName);
+        //const formDataImage = new FormData();
+        //formDataImage.append('image', imageBlob, imageName);
 
-        fetch('/images', {
-            method: 'POST',
-            body: formDataImage,
-        })
-            .then(response => response.json())
-            .then(responseData => {
-                console.log('Photo enregistrée avec succès:', responseData);
+        
+        
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ path('register_user') }}'; // Remplacez par le chemin de la route de sauvegarde de l'image
 
-                // Envoi des données utilisateur au serveur
-                fetch('{{ path('app_register') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(donnee_user),
-                })
-                    .then(response => response.json())
-                    .then(responseData => {
-                        console.log('Utilisateur enregistré avec succès:', responseData);
-                    })
-                    .catch(error => {
-                        console.error('Erreur lors de la soumission du formulaire:', error);
-                    });
-            })
-            .catch(error => {
-                console.error('Erreur lors de l\'enregistrement de la photo:', error);
-            });
+        // Créer un champ caché pour les données de l'image
+        const imageInput = document.createElement('input');
+        imageInput.type = 'hidden';
+        imageInput.name = 'image';
+        imageInput.value = image_encode;
+
+        const nameimageInput = document.createElement('input');
+        nameimageInput.type = 'hidden';
+        nameimageInput.name = 'image_name';
+        nameimageInput.value = image_name;
+
+
+        // Ajouter le champ caché au formulaire
+        form.appendChild(imageInput);
+        form.appendChild(nameimageInput);
+
+        // Ajouter le formulaire à la page et le soumettre
+        document.body.appendChild(form);
+        form.submit();
+
+
+        $.ajax({
+            type: 'POST',
+            url: '/api/users',
+            data: JSON.stringify(donnee_user),
+            contentType: 'application/json',
+            success: function(response) {
+                // Gérer la réponse de l'API ici
+                console.log(response);
+            },
+            error: function(xhr, status, error) {
+                // Gérer les erreurs de requête ici
+                console.error(error);
+            }
+        });
+        
     });
 
     navigator.mediaDevices.getUserMedia({ video: true })

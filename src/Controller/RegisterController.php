@@ -8,7 +8,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\String\Slugger\SluggerInterface;
 use App\Entity\User;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 class RegisterController extends AbstractController
 {
@@ -47,6 +49,33 @@ class RegisterController extends AbstractController
     #[Route('/register/success', name: 'app_register_success')]
     public function registerSuccess(): Response
     {
+        return $this->render('register/success.html.twig');
+    }
+
+    #[Route('/signin/register_user', name: 'register_user')]
+    public function saveImage(Request $request, SluggerInterface $slugger): Response
+    {
+        $imageData = $request->request->get('image');
+        $image_name = $request->request->get('image_name');
+        $imageData = str_replace('data:image/jpeg;base64,', '', $imageData);
+        $imageData = base64_decode($imageData);
+
+        // Récupérer le compteur d'images à partir du cache
+        $cache = new FilesystemAdapter();
+        $counter = $cache->getItem('image_counter');
+        $counterValue = $counter->get() ?? 0;
+
+       // Définir le nom de l'image
+
+        $imageName = $image_name;
+
+
+        // Chemin de destination pour enregistrer l'image
+        $imagePath = $this->getParameter('kernel.project_dir') . '/public/images/' . $imageName;
+
+        file_put_contents($imagePath, $imageData);
+
+
         return $this->render('register/success.html.twig');
     }
 }
