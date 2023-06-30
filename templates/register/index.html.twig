@@ -5,8 +5,42 @@
 <head>
     <title>Inscription</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
+        body {
+            font-family: Roboto, sans-serif;
+            background-color: #f1f1f1;
+            margin: 0;
+            padding: 0;
+        }
+
         .container {
+            width: 100%;
+            height: 100vh;
             display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        .video-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: row;
+            width: 100%;
+            height: auto;
+            max-height: 70vh;
+        }
+
+        #video {
+            width: auto;
+            height: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
         }
 
         .photo-container {
@@ -38,13 +72,62 @@
             align-items: center;
         }
 
+
+
         .button-container {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: row;
+            align-content: center;
+
+            align-items: center;
             display: flex;
             justify-content: space-between;
         }
+        button {
+            display: flex;
+            width: 100%;
+            max-width: 300px;
+            margin:1em auto;
+            padding: 10px;
+            background-color: #379EC1;
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            text-transform: uppercase;
+        }
 
-        .button-container button {
-            width: 48%;
+        button:hover {
+            background-color: #267c97;
+        }
+        input{
+            width: 100%;
+            margin: 0 auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            height: 50px;
+
+            color: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        footer a{
+            color: #000000;
+        }
+        footer a:hover{
+            color: orange;
         }
 
         @media screen and (max-width: 767px) {
@@ -69,8 +152,9 @@
     </style>
 </head>
 <body>
-<h1>Inscription</h1>
+
 <div class="container">
+    <h1>Inscription</h1>
     <div class="photo-container">
         <video id="video" autoplay></video>
         <canvas id="canvas" style="display: none;"></canvas>
@@ -91,6 +175,9 @@
             </div>
         </form>
     </div>
+    <footer>
+        <p>&copy; 2023 <span>H3 Hitema</span>. All rights reserved.<a href="https://github.com/HrexD/Projet_Technique" target="_blank">Github</a></p>
+    </footer>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
