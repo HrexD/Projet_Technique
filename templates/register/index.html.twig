@@ -140,8 +140,11 @@
             display: none;
         }
 
-        @media screen and (max-width: 767px) {
+        @media screen and (max-width: 1000px) {
             .container {
+                flex-direction: column;
+            }
+            .video-container{
                 flex-direction: column;
             }
 
@@ -225,7 +228,7 @@
             canvas.height = video.videoHeight;
             const context = canvas.getContext('2d');
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            canvas.style.display = 'none';
+            canvas.style.display = 'block';
             isPreviewMode = true;
 
             // Mettre à jour la source de l'image existante avec la nouvelle photo
