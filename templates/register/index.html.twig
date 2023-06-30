@@ -57,7 +57,7 @@
         }
 
         .form-container {
-            flex: 1;
+
             padding-left: 20px;
             display: flex;
             flex-direction: column;
@@ -179,12 +179,12 @@
 <img src="{{ asset('images/MaxAirain.png') }}" alt="Logo" id="logo"/>
 <img src="{{ asset('images/MaxAirain_1.png') }}" alt="Logo" id="logo1"/>
 <div class="container">
-    
-    <div class="photo-container">
+    <h1>Inscription</h1>
+    <div class="video-container">
         <video id="video" autoplay></video>
         <canvas id="canvas" style="display: none;"></canvas>
     </div>
-    <h1>Inscription</h1>
+
     <div class="form-container">
         <form method="POST" action="{{ path('app_register') }}" enctype="multipart/form-data">
             <label for="nom">Nom :</label>
