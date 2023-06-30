@@ -76,6 +76,9 @@ class RegisterController extends AbstractController
         file_put_contents($imagePath, $imageData);
 
 
-        return $this->render('register/success.html.twig');
+        return $this->render(
+            'sign_in.html.twig',
+            ['error' => false]
+        );
     }
 }
